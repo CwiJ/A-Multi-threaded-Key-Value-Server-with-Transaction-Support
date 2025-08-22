@@ -1,7 +1,5 @@
-# A-Multi-threaded-Key-Value-Server-with-Transaction-Support
-This is a C++ multi-threaded key/value store with a custom client-server architecture. The server manages concurrent clients, using pthread locks for data consistency. It supports both an autocommit mode for single operations and a full transactional mode, which uses a non-blocking trylock strategy to ensure deadlock-free atomic operations.
-
-This project is a comprehensive C++ implementation of a multi-threaded, in-memory key/value store. It features a custom client-server architecture that communicates over a simple, line-oriented network protocol. The server is designed to manage multiple concurrent clients, with each connection handled in a separate thread.
+# A-Multi-threaded-Key-Value-Server-with-Transaction-Support-based-on-C++
+## This is a C++ multi-threaded key/value store with a custom client-server architecture. The server manages concurrent clients, using pthread locks for data consistency. It supports both an autocommit mode for single operations and a full transactional mode, which uses a non-blocking trylock strategy to ensure deadlock-free atomic operations.
 
 Its core feature is a robust synchronization mechanism using pthread mutexes to ensure data consistency. The server supports two operational modes:
 
@@ -11,36 +9,36 @@ A full transactional mode, which uses a non-blocking trylock strategy to ensure 
 
 The project is structured into a core library, a server application, and a suite of client applications, each with a distinct role:
 
-Core Library:
+### Core Library:
 
-message.h/.cpp: Defines the communication "contract" through the Message object, enumerating all valid client/server actions.
+- message.h/.cpp: Defines the communication "contract" through the Message object, enumerating all valid client/server actions.
 
-message_serialization.h/.cpp: Handles the crucial task of encoding and decoding Message objects.
+- message_serialization.h/.cpp: Handles the crucial task of encoding and decoding Message objects.
 
-table.h/.cpp: Implements the primary data storage unit with logic for pending changes to support transactions.
+- table.h/.cpp: Implements the primary data storage unit with logic for pending changes to support transactions.
 
-value_stack.h/.cpp: Provides the per-client operand stack for server-side computations.
+- value_stack.h/.cpp: Provides the per-client operand stack for server-side computations.
 
-csapp.h/.c, guard.h, exceptions.h: Provide essential utilities for networking, safe mutex management (RAII), and custom exception handling.
+- csapp.h/.c, guard.h, exceptions.h: Provide essential utilities for networking, safe mutex management (RAII), and custom exception handling.
 
-Server Application:
+### Server Application:
 
-server.h/.cpp, server_main.cpp: The "lobby" of the server. It listens for incoming connections and spawns new threads for each client.
+- server.h/.cpp, server_main.cpp: The "lobby" of the server. It listens for incoming connections and spawns new threads for each client.
 
-client_connection.h/.cpp: The "dedicated teller" for each client. It manages the entire lifecycle of a single client session.
+- client_connection.h/.cpp: The "dedicated teller" for each client. It manages the entire lifecycle of a single client session.
 
-Client Applications:
+### Client Applications:
 
-get_value.cpp, set_value.cpp, incr_value.cpp: These are the user-facing applications, encapsulating complex protocol interactions into simple, single-purpose tools.
+- get_value.cpp, set_value.cpp, incr_value.cpp: These are the user-facing applications, encapsulating complex protocol interactions into simple, single-purpose tools.
 
-Part 1: Client and Protocol Design
+## Part 1: Client and Protocol Design
 In this first part, we implemented the client-side applications and established the communication protocol.
 
 A key design principle that proved particularly impactful was the introduction of the Message object to define a strict communication contract.
 
 By using the Message class and a MessageType enum, we can completely enumerate all possible client behaviors. This is extremely important from a program design perspective, as it allows the server to validate every request against a known set of actions. In other words, it ensures that all user operations are completely controllable and manageable by the server, forming the foundation of a secure and robust system.
 
-Part 2: Server Implementation and Synchronization
+## Part 2: Server Implementation and Synchronization
 In the second part, we built the server capable of responding to the clients from Part 1. The server's three most fundamental functions—accepting requests, processing logic, and sending responses—are encapsulated within client_connection.cpp. All other server-side designs revolve around this core, with server.cpp primarily designed to meet the demands of a multi-threaded environment.
 
 The most critical aspect of the server is its synchronization mechanism. In a multi-threaded environment, we must prevent the chaos that arises when multiple threads attempt to access and modify the same shared data simultaneously. The objects that require synchronization are the two shared resources in this project: the list of tables managed by the Server object, and the content of each Table object itself.
