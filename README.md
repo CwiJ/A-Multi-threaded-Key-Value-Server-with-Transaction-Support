@@ -1,0 +1,2 @@
+# A-Multi-threaded-Key-Value-Server-with-Transaction-Support
+This is a C++ multi-threaded key/value store with a custom client-server architecture. The server manages concurrent clients, using pthread locks for data consistency. It supports both an autocommit mode for single operations and a full transactional mode, which uses a non-blocking trylock strategy to ensure deadlock-free atomic operations.
